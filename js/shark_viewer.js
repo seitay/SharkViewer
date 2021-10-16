@@ -566,7 +566,7 @@ SharkViewer.prototype.setValues = function (values) {
 //Helper function to turn swc file data into json object
 function swc_parser(swc_file) {
 	//split by lines
-	var swc_ar = swc_file.split("\n");
+	var swc_ar = swc_file.split(/\r?\n/);
 	var swc_json = {};
 
 	var float = '-?\\d*(?:\\.\\d+)?';
