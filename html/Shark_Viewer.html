@@ -11,6 +11,14 @@
 		<script src="./js/shark_viewer.js"></script>
 		<!-- optional only if show_stats = true -->
 		<script src="js/threejs/Stats.js"></script>
+<style>	
+/* #drop_zone {
+  border: 5px solid blue;
+  width:  100%;
+  height: 100%;
+} */
+</style>
+		
 <script id="swc" type='text/plain'>
 # ORIGINAL_SOURCE NeuronStudio 0.8.80
 # CREATURE
@@ -40,14 +48,16 @@
 </script>
 </head>
 <body>
-	<label for='swc_input'>Upload a swc file to view it in the SharkViewer:</label><input type='file' name='swc_input' id='swc_input' />
-	<!-- three.js container -->
-    	<div id="container" style='position:relative'></div>
-	<!-- info on screen display -->
-
+	<div id="drop_zone">
+		<label for='swc_input'>Upload a swc file to view it in the SharkViewer:</label><input type='file' name='swc_input' id='swc_input' />
+		<!-- three.js container -->
+			<div id="container" style='position:relative'></div>
+		<!-- info on screen display -->		
+	</div>
 
 	<script type='text/javascript'>
 	var mdata;
+	var swc;
 	function readSwcFile(e) {
 		var f = e.target.files[0]; 
 		console.log(f);
@@ -79,6 +89,58 @@
 	}
 	window.onload = function() {
 		document.getElementById('swc_input').addEventListener('change', readSwcFile, false);
+
+		var dropZone = document.getElementById('drop_zone')
+
+// Optional.   Show the copy icon when dragging over.  Seems to only work for chrome.
+dropZone.addEventListener('dragover', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+});
+
+// Get file data on drop
+dropZone.addEventListener('drop', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var files = e.dataTransfer.files; // Array of all files
+
+	swc = {};
+	document.getElementById('container').innerHTML = "";	
+    for (var i=0, file; file=files[i]; i++) {
+        // if (file.type.match(/image.*/)) {
+            var reader = new FileReader();
+	        reader.onload = function(event)
+    	    {
+				var swc_txt = event.target.result;
+				// swc_tmp = swc_parser(swc_txt);
+				// var max = 0;
+				// Object.keys(swc).forEach(function(k){ if(parseInt(k) > parseInt(max)){ max = k; }});
+				// Object.keys(swc_tmp).forEach(function(k){ swc[parseInt(max)+parseInt(k)] = swc_tmp[k]; });
+				swc = swc_parser(swc_txt);
+	        };
+			reader.onloadend = function(event)
+			{
+				console.log('files read...');
+				document.getElementById('container').innerHTML = "";
+				var s = new SharkViewer({
+						swc: swc, 
+						dom_element: 'container', 
+						center_node: -1, 
+						show_stats: true, 
+						metadata: mdata
+					});
+				s.init();
+				s.animate();		
+				// window.s.loadNeuron('abc', '#FF0000', swc);
+			};
+			reader.readAsText(file);			
+
+        // }
+    }
+});
+		
+		
 		var swc = swc_parser(document.getElementById("swc").text);
 		mdata = JSON.parse(document.getElementById("metadata_swc").text);
 		var s = new SharkViewer({

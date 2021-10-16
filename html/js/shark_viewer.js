@@ -630,6 +630,36 @@ function swc_parser(swc_file) {
 	//return json
 	return swc_json;
 }
+<<<<<<< Updated upstream:html/js/shark_viewer.js
+=======
+
+//Helper function to turn annotation file data into array
+function annotation_parser(txt) {
+	var ann_ar = txt.split("\n");
+	var ann_json = [];
+	var float = '-?\\d*(?:\\.\\d+)?';
+	var pattern = new RegExp('^[ \\t]*(' + [
+		float,    // x
+		float,    // y
+		float,    // z
+	].join(')[ \\t]+(') + ')[ \\t]*$');
+	ann_ar.forEach(function (e) {
+		//if line is good, put into json
+		var match = e.match(pattern);
+		if (match) {
+			ann_json.push(
+				{
+					'x'      : parseFloat(match[1]),
+					'y'      : parseFloat(match[2]),
+					'z'      : parseFloat(match[3]),
+				}
+			);
+		}
+	});
+	console.log(ann_json);
+	return ann_json;
+}
+>>>>>>> Stashed changes:old/js/shark_viewer.js
 
 
 
